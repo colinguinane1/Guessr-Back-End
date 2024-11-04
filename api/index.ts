@@ -1,8 +1,16 @@
+import { Request, Response } from "express";
+import { mongo } from "mongoose";
 const express = require("express");
+const dotenv = require("dotenv");
+const mongoose = require("mongoose");
+dotenv.config();
+
 const app = express();
 
-app.get("/", (req, res) => res.send("Express on Vercel"));
+const PORT = process.env.PORT || 3000;
 
-app.listen(3000, () => console.log("Server ready on port 3000."));
+app.get("/", (req: Request, res: Response) => res.send("Express on Vercel"));
+
+app.listen(PORT, () => console.log(`Server ready on port ${PORT}.`));
 
 module.exports = app;
