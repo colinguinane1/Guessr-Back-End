@@ -5,6 +5,7 @@ const router = express.Router();
 import {
   createNumberController,
   getAllNumbers,
+  getCurrentNumbers,
 } from "../controllers/NumberController";
 
 // Define your routes here
@@ -20,6 +21,8 @@ import {
 router.post("/create", createNumberController);
 
 router.get("/all", getAllNumbers);
+
+router.get("/current", getCurrentNumbers);
 
 // Export the router
 module.exports = router;

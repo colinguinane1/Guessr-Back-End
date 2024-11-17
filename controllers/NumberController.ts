@@ -19,13 +19,17 @@ const createNumberController = async (req: Request, res: Response) => {
       console.log("No number found.");
       return true; // No number found in DB
     } else {
-      const currentDate = Date.now();
       const numberExpiry = currentNumber.expires;
+      const numberCreated = currentNumber.created;
 
-      console.log(currentDate, numberExpiry + "here");
-      console.log((currentDate >= numberExpiry + 1000) + "here2");
+      const twentyFourHours = 24 * 60 * 60 * 1000;
 
-      return currentDate >= numberExpiry + 1000;
+      const isExpired = Date.now() - numberCreated >= twentyFourHours;
+
+      console.log(numberCreated, numberExpiry + "here");
+      console.log(isExpired + "here2");
+
+      return isExpired;
     }
   };
 
@@ -69,4 +73,13 @@ const getAllNumbers = async (req: Request, res: Response) => {
   }
 };
 
-export { createNumberController, getAllNumbers };
+const getCurrentNumbers = async (req: Request, res: Response) => {
+  try {
+    const numbers = await NumberModel.find({}).sort({ created: -1 }).limit(4);
+    res.status(200).json(numbers);
+  } catch (error) {
+    res.status(400).json({ ok: "no", error: (error as Error).message });
+  }
+};
+
+export { createNumberController, getAllNumbers, getCurrentNumbers };
