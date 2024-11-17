@@ -2,10 +2,10 @@ import { Request, Response } from "express";
 const NumberModel = require(`../models/NumberModel`);
 
 const difficulties = [
-  { name: "easy", max: 10, attempts: 4 },
-  { name: "medium", max: 200, attempts: 8 },
-  { name: "hard", max: 1500, attempts: 15 },
-  { name: "impossible", max: 10000, attempts: 25 },
+  { name: "easy", max: 10, attempts: 4, order: 1 },
+  { name: "medium", max: 200, attempts: 8, order: 2 },
+  { name: "hard", max: 1500, attempts: 15, order: 3 },
+  { name: "impossible", max: 10000, attempts: 25, order: 4 },
 ];
 
 const randomNumber = (max: number) => {
@@ -41,6 +41,7 @@ const createNumberController = async (req: Request, res: Response) => {
         difficulty: difficulty.name,
         max: difficulty.max,
         value: randomNumber(difficulty.max),
+        order: difficulty.order,
         attempts: difficulty.attempts,
         expires: Date.now() + 24 * 60 * 60 * 1000, // Adds 24 hours to the current date
         global_user_guesses: 0,
@@ -75,7 +76,7 @@ const getAllNumbers = async (req: Request, res: Response) => {
 
 const getCurrentNumbers = async (req: Request, res: Response) => {
   try {
-    const numbers = await NumberModel.find({}).sort({ created: -1 }).limit(4);
+    const numbers = await NumberModel.find({}).sort({ max: +1 }).limit(4);
     res.status(200).json(numbers);
   } catch (error) {
     res.status(400).json({ ok: "no", error: (error as Error).message });
