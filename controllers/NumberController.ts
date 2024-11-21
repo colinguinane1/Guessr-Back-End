@@ -76,7 +76,7 @@ const getAllNumbers = async (req: Request, res: Response) => {
 
 const getCurrentNumbers = async (req: Request, res: Response) => {
   try {
-    const numbers = await NumberModel.find({}).sort({ max: +1 }).limit(4);
+    const numbers = await NumberModel.find({}).sort({ expires: -1 }).limit(4);
     res.status(200).json(numbers);
   } catch (error) {
     res.status(400).json({ ok: "no", error: (error as Error).message });
