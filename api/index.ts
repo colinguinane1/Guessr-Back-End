@@ -18,7 +18,7 @@ mongoose
   )
   .catch((err: any) => console.log(err));
 
-app.get("/", (req: Request, res: Response) => res.send("API is running. "));
+app.get("/", (req: Request, res: Response) => res.send("API is running"));
 
 app.use("/api/numbers", numberRoutes);
 
