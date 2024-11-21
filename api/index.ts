@@ -8,7 +8,17 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-app.use(cors({ origin: ['https://num-game-front-end.vercel.app', 'http://localhost:3000'] }));
+app.use(cors({
+  origin: [
+    'https://num-game-front-end.vercel.app',  // Main frontend domain
+    'http://localhost:3000',                   // Local development domain
+    'https://num-game-front-nrhsm1r2p-colinguinane1s-projects.vercel.app'  // New frontend domain
+  ],
+  methods: ['GET', 'POST'], // Allow only GET and POST methods (customize as needed)
+  credentials: true         // Allow credentials like cookies (if necessary)
+}));
+
+app.options('*', cors());
 
 mongoose
   .connect(process.env.MONGO_URI)
