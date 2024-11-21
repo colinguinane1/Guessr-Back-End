@@ -8,7 +8,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-app.use(cors());
+app.use(cors({ origin: 'https://num-game-front-nrhsm1r2p-colinguinane1s-projects.vercel.app' }));
 
 mongoose
   .connect(process.env.MONGO_URI)
