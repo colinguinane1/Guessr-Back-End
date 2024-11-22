@@ -10,7 +10,9 @@ const PORT = process.env.PORT || 4000;
 
 const allowedOrigins = [
     'http://localhost:3000',            // Allow local development environment
-    'https://numgame.up.railway.app',   // Allow production environment
+    'https://numgame.up.railway.app',
+    'https://num-game-front-end.vercel.app'// Allow production environment
+
     // Add more origins as needed
 ];
 
