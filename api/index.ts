@@ -25,7 +25,6 @@ const corsOptions: CorsOptions = {
         }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Specify allowed HTTP methods
-    credentials: true,  // Allow cookies or credentials in requests
 };
 
 // Apply the CORS middleware to the Express app
@@ -35,7 +34,7 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(
     () => console.log("Connected to MongoDB."),
-    app.listen(PORT, "0.0.0.0", () => console.log(`Server ready on port ${PORT}.`))
+    app.listen(PORT, '0.0.0.0', () => console.log(`Server ready on port ${PORT}.`))
   )
   .catch((err: any) => console.log(err));
 
@@ -43,4 +42,4 @@ app.get("/", (req: Request, res: Response) => res.send("API is running"));
 
 app.use("/api/numbers", numberRoutes);
 
-module.exports = app;
+module.exports = app
