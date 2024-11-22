@@ -2,20 +2,34 @@ import { Request, Response } from "express";
 const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
-const cors = require("cors");
+import cors, { CorsOptions} from 'cors'
 const numberRoutes = require("../routes/Numbers");
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-app.use(cors({
-  origin: [
-     '*'
-  ],
-  methods: ['GET', 'POST'], // Allow only GET and POST methods (customize as needed)
-}));
+const allowedOrigins = [
+    'http://localhost:3000',            // Allow local development environment
+    'https://numgame.up.railway.app',   // Allow production environment
+    // Add more origins as needed
+];
 
-app.options('*', cors());
+// Define CORS options
+const corsOptions: CorsOptions = {
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+        // If no origin (i.e., for non-browser requests like Postman), allow it
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Specify allowed HTTP methods
+    credentials: true,  // Allow cookies or credentials in requests
+};
+
+// Apply the CORS middleware to the Express app
+app.use(cors(corsOptions));
 
 mongoose
   .connect(process.env.MONGO_URI)
