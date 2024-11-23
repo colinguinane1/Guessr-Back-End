@@ -1,5 +1,4 @@
 const express = require("express");
-import { Request, Response } from "express";
 const router = express.Router();
 
 import {
@@ -25,4 +24,4 @@ router.get("/all", getAllNumbers);
 router.get("/current", getCurrentNumbers);
 
 // Export the router
-module.exports = router;
+module.exports = router

@@ -19,21 +19,17 @@ const createNumberController = async (req: Request, res: Response) => {
       console.log("No number found.");
       return true; // No number found in DB
     } else {
-      const numberExpiry = currentNumber.expires;
       const numberCreated = currentNumber.created;
 
       const twentyFourHours = 24 * 60 * 60 * 1000;
 
       const isExpired = Date.now() - numberCreated >= twentyFourHours;
 
-      console.log(numberCreated, numberExpiry + "here");
-      console.log(isExpired + "here2");
+      console.log("Number expired:", isExpired);
 
-      return isExpired;
+      return isExpired
     }
   };
-
-  console.log(await checkExpired());
 
   if (await checkExpired()) {
     try {

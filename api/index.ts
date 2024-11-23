@@ -6,17 +6,14 @@ import cors, { CorsOptions} from 'cors'
 const numberRoutes = require("../routes/Numbers");
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 
 const allowedOrigins = [
-    'http://localhost:3000',            // Allow local development environment
+    'http://localhost:3000',
     'https://numgame.up.railway.app',
-    'https://num-game-front-end.vercel.app'// Allow production environment
-
-    // Add more origins as needed
+    'https://num-game-front-end.vercel.app'
 ];
 
-// Define CORS options
 const corsOptions: CorsOptions = {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
         // If no origin (i.e., for non-browser requests like Postman), allow it
@@ -26,7 +23,7 @@ const corsOptions: CorsOptions = {
             callback(new Error('Not allowed by CORS'));
         }
     },
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Specify allowed HTTP methods
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
 };
 
 // Apply the CORS middleware to the Express app
