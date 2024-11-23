@@ -2,19 +2,19 @@ import { Request, Response } from "express";
 const NumberModel = require(`../models/NumberModel`);
 
 const difficulties = [
-  { name: "easy", max: 10, attempts: 4, order: 1 },
-  { name: "medium", max: 200, attempts: 8, order: 2 },
-  { name: "hard", max: 1500, attempts: 15, order: 3 },
-  { name: "impossible", max: 10000, attempts: 25, order: 4 },
+  { name: "easy", max: 10, attempts: 4, color: "green" },
+  { name: "medium", max: 200, attempts: 8, color: "yellow" },
+  { name: "hard", max: 1500, attempts: 15, color: "orange" },
+  { name: "impossible", max: 10000, attempts: 25, color: "red" },
 ];
 
 const randomNumber = (max: number) => {
-  return Math.floor(Math.random() * (max - 1 + 1)) + 1;
+  return Math.floor(Math.random() * max) + 1;
 };
 
 const createNumberController = async (req: Request, res: Response) => {
   const checkExpired = async () => {
-    const currentNumber = await NumberModel.findOne({}).sort({ _id: -1 });
+    const currentNumber = await NumberModel.findOne({}).sort({ expires: -1 });
     if (!currentNumber) {
       console.log("No number found.");
       return true; // No number found in DB
@@ -37,7 +37,7 @@ const createNumberController = async (req: Request, res: Response) => {
         difficulty: difficulty.name,
         max: difficulty.max,
         value: randomNumber(difficulty.max),
-        order: difficulty.order,
+        color: difficulty.color,
         attempts: difficulty.attempts,
         expires: Date.now() + 24 * 60 * 60 * 1000, // Adds 24 hours to the current date
         global_user_guesses: 0,
@@ -47,6 +47,7 @@ const createNumberController = async (req: Request, res: Response) => {
       const createdNumbers = await NumberModel.insertMany(numberDocuments);
 
       res.status(200).json(createdNumbers);
+      return
     } catch (error) {
       console.error("Error creating numbers:", error); // For debugging
       res.status(500).json({
@@ -55,7 +56,7 @@ const createNumberController = async (req: Request, res: Response) => {
       });
     }
   } else {
-    return res.status(200).json({
+    return res.status(300).json({
       message: "The number hasn't expired yet.",
     });
   }
