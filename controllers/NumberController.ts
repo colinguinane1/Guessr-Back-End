@@ -9,7 +9,7 @@ const difficulties = [
 ];
 
 const randomNumber = (max: number) => {
-  return Math.floor(Math.random() * max) + 1;
+  return Math.floor(Math.random() * max) + 1
 };
 
 const createNumberController = async (req: Request, res: Response) => {
