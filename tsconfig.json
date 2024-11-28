@@ -14,6 +14,8 @@
     "target": "es2016",
     "outDir": "./dist",             // Output compiled JS files to the 'dist' folder
     "rootDir": "./",
+    "types": ["node", "express", "cors"],  // Ensure express and cors are listed here
+    "typeRoots": ["node_modules/@types"],  // Ensure TypeScript looks in @types folder
     /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
     // "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
     // "jsx": "preserve",                                /* Specify what JSX code is generated. */
