@@ -63,10 +63,10 @@ const createNumberController = async (req: Request, res: Response) => {
   }
 };
 
-cron.schedule('53 3 * * *', async () => {
-  console.log("Running scheduled task to create numbers...");
+cron.schedule('0 4 * * *', async () => {
+  console.log("Running scheduled task to create numbers...")
   try {
-    const req = {} as Request;
+    const req = {} as Request
     const res = {
       status: (statusCode: number) => ({
         json: (message: any) => console.log(message)
