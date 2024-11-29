@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import cron from 'node-cron'
 const NumberModel = require(`../models/NumberModel`);
 
 const difficulties = [
@@ -61,6 +62,23 @@ const createNumberController = async (req: Request, res: Response) => {
     });
   }
 };
+
+cron.schedule('53 3 * * *', async () => {
+  console.log("Running scheduled task to create numbers...");
+  try {
+    const req = {} as Request;
+    const res = {
+      status: (statusCode: number) => ({
+        json: (message: any) => console.log(message)
+      }),
+
+    } as Response;
+
+    await createNumberController(req, res)
+  } catch(error){
+    console.error('Error running scheduled task: ', error)
+  }
+})
 
 const getAllNumbers = async (req: Request, res: Response) => {
   try {
