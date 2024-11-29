@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 5000;
 
 const allowedOrigins = [
     'http://localhost:3000',
+    'http://localhost:3001',
     'https://numgame.up.railway.app',
     'https://num-game-front-end.vercel.app'
 ];
