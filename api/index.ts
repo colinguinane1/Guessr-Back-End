@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
-import cors, { CorsOptions} from 'cors'
+import cors, {CorsOptions} from 'cors'
 const numberRoutes = require("../routes/Numbers");
 dotenv.config();
 const app = express();
