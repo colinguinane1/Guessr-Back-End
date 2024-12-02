@@ -17,7 +17,7 @@ import {
 //   });
 // });
 
-router.post("/create", createNumberController);
+router.post("/create", createNumberController)
 
 router.get("/all", getAllNumbers);
 
