@@ -13,26 +13,7 @@ const randomNumber = (max: number) => {
   return Math.floor(Math.random() * max) + 1
 };
 
-const createNumberController = async (req: Request, res: Response) => {
-  const checkExpired = async () => {
-    const currentNumber = await NumberModel.findOne({}).sort({ expires: -1 });
-    if (!currentNumber) {
-      console.log("No number found.");
-      return true; // No number found in DB
-    } else {
-      const numberCreated = currentNumber.created;
-
-      const twentyFourHours = 24 * 60 * 60 * 1000;
-
-      const isExpired = Date.now() - numberCreated >= twentyFourHours;
-
-      console.log("Number expired:", isExpired);
-
-      return isExpired
-    }
-  };
-
-  if (await checkExpired()) {
+const createNumber = async (req: Request, res: Response) => {
     try {
       const numberDocuments = difficulties.map((difficulty) => ({
         difficulty: difficulty.name,
@@ -56,14 +37,9 @@ const createNumberController = async (req: Request, res: Response) => {
         error: (error as Error).message,
       });
     }
-  } else {
-    return res.status(300).json({
-      message: "The number hasn't expired yet.",
-    });
-  }
 };
 
-cron.schedule('0 4 * * *', async () => {
+cron.schedule('0 0 * * *', async () => {
   console.log("Running scheduled task to create numbers...")
   try {
     const req = {} as Request
@@ -74,7 +50,7 @@ cron.schedule('0 4 * * *', async () => {
 
     } as Response;
 
-    await createNumberController(req, res)
+    await createNumber(req, res)
   } catch(error){
     console.error('Error running scheduled task: ', error)
   }
@@ -98,4 +74,4 @@ const getCurrentNumbers = async (req: Request, res: Response) => {
   }
 };
 
-export { createNumberController, getAllNumbers, getCurrentNumbers };
+export { createNumber, getAllNumbers, getCurrentNumbers };

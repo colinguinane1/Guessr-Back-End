@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 import {
-  createNumberController,
+  createNumber,
   getAllNumbers,
   getCurrentNumbers,
 } from "../controllers/NumberController";
@@ -17,7 +17,7 @@ import {
 //   });
 // });
 
-router.post("/create", createNumberController)
+router.post("/create", createNumber)
 
 router.get("/all", getAllNumbers);
 
