@@ -68,6 +68,7 @@ router.post("/register", async (req: Request, res: Response) => {
 
 router.post("/login", async (req: Request, res: Response) => {
   const { email, password } = req.body;
+  console.log("Received login request:", { email });
 
   try {
     const user = await User.findOne({ email });
@@ -82,9 +83,13 @@ router.post("/login", async (req: Request, res: Response) => {
     }
 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "24h",
     });
-    res.json({ token });
+    console.log("Returning token: " + token);
+    res
+      .status(201)
+      .json({ token, user: { email: user.email, userId: user._id } });
+    return;
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
   }
