@@ -7,7 +7,7 @@ const numberRoutes = require("../routes/Numbers");
 const authRoutes = require("../routes/auth");
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 app.use(express.json());
 
 const allowedOrigins = [
