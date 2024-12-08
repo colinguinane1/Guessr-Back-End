@@ -49,16 +49,18 @@ router.post("/register", async (req: Request, res: Response) => {
       return;
     }
 
-    const user = new User({ email, password });
+    const name = email.split("@")[0];
+
+    const username = name + Math.floor(Math.random() * 9999) + 1;
+
+    const user = new User({ email, password, username });
     await user.save();
 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
       expiresIn: "1h",
     });
 
-    res
-      .status(201)
-      .json({ token, user: { email: user.email, userId: user._id } });
+    res.status(201).json({ token });
     return;
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
@@ -86,9 +88,7 @@ router.post("/login", async (req: Request, res: Response) => {
       expiresIn: "24h",
     });
     console.log("Returning token: " + token);
-    res
-      .status(201)
-      .json({ token, user: { email: user.email, userId: user._id } });
+    res.status(201).json({ token, user });
     return;
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
