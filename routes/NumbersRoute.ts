@@ -5,6 +5,7 @@ import {
   createNumber,
   getAllNumbers,
   getCurrentNumbers,
+  addNumberGuess
 } from "../controllers/NumberController";
 
 // Define your routes here
@@ -16,6 +17,8 @@ import {
 //     impossible: { min: 1, max: 10000, number: 6512, attempts: 25 },
 //   });
 // });
+
+router.post("/add-guess", addNumberGuess)
 
 router.post("/create", createNumber)
 
