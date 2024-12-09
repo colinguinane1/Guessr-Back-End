@@ -15,6 +15,7 @@ const allowedOrigins = [
   "http://localhost:3001",
   "https://numgame.up.railway.app",
   "https://num-game-front-end.vercel.app",
+  "https://num.c-g.dev",
 ];
 
 const corsOptions: CorsOptions = {
