@@ -3,8 +3,8 @@ const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 import cors, { CorsOptions } from "cors";
-const numberRoutes = require("../routes/Numbers");
-const authRoutes = require("../routes/auth");
+const numberRoutes = require("../routes/NumbersRoute");
+const authRoutes = require("../routes/AuthRoute");
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -15,6 +15,7 @@ const allowedOrigins = [
   "http://localhost:3001",
   "https://numgame.up.railway.app",
   "https://num-game-front-end.vercel.app",
+  "https://num.c-g.dev",
 ];
 
 const corsOptions: CorsOptions = {

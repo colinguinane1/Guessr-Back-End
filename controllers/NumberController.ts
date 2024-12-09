@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import cron from 'node-cron'
+import cron from "node-cron";
 const NumberModel = require(`../models/NumberModel`);
 
 const difficulties = [
@@ -10,51 +10,59 @@ const difficulties = [
 ];
 
 const randomNumber = (max: number) => {
-  return Math.floor(Math.random() * max) + 1
+  return Math.floor(Math.random() * max) + 1;
+};
+
+const addNumberGuess = async (req: Request, res: Response) => {
+  const { numberId } = req.body;
+  const number = await NumberModel.findById(numberId);
+  if (!number) return res.status(404).json({ message: "Number not found" });
+  number.global_user_guesses++;
+  await number.save();
+  res.status(200).json(number);
 };
 
 const createNumber = async (req: Request, res: Response) => {
-    try {
-      const numberDocuments = difficulties.map((difficulty) => ({
-        difficulty: difficulty.name,
-        max: difficulty.max,
-        value: randomNumber(difficulty.max),
-        color: difficulty.color,
-        attempts: difficulty.attempts,
-        expires: Date.now() + 24 * 60 * 60 * 1000, // Adds 24 hours to the current date
-        global_user_guesses: 0,
-      }));
+  try {
+    const numberDocuments = difficulties.map((difficulty) => ({
+      difficulty: difficulty.name,
+      max: difficulty.max,
+      value: randomNumber(difficulty.max),
+      color: difficulty.color,
+      attempts: difficulty.attempts,
+      expires: Date.now() + 24 * 60 * 60 * 1000, // Adds 24 hours to the current date
+      global_user_guesses: 0,
+    }));
 
-      // Use insertMany to reduce the number of individual operations
-      const createdNumbers = await NumberModel.insertMany(numberDocuments);
+    // Use insertMany to reduce the number of individual operations
+    const createdNumbers = await NumberModel.insertMany(numberDocuments);
 
-      res.status(200).json(createdNumbers);
-      return
-    } catch (error) {
-      console.error("Error creating numbers:", error); // For debugging
-      res.status(500).json({
-        message: "Error creating number",
-        error: (error as Error).message,
-      });
-    }
+    res.status(200).json(createdNumbers);
+    return;
+  } catch (error) {
+    console.error("Error creating numbers:", error); // For debugging
+    res.status(500).json({
+      message: "Error creating number",
+      error: (error as Error).message,
+    });
+  }
 };
 
-cron.schedule('0 0 * * *', async () => {
-  console.log("Running scheduled task to create numbers...")
+cron.schedule("0 0 * * *", async () => {
+  console.log("Running scheduled task to create numbers...");
   try {
-    const req = {} as Request
+    const req = {} as Request;
     const res = {
       status: (statusCode: number) => ({
-        json: (message: any) => console.log(message)
+        json: (message: any) => console.log(message),
       }),
-
     } as Response;
 
-    await createNumber(req, res)
-  } catch(error){
-    console.error('Error running scheduled task: ', error)
+    await createNumber(req, res);
+  } catch (error) {
+    console.error("Error running scheduled task: ", error);
   }
-})
+});
 
 const getAllNumbers = async (req: Request, res: Response) => {
   try {
@@ -74,4 +82,4 @@ const getCurrentNumbers = async (req: Request, res: Response) => {
   }
 };
 
-export { createNumber, getAllNumbers, getCurrentNumbers };
+export { createNumber, addNumberGuess, getAllNumbers, getCurrentNumbers };
