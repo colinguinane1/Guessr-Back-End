@@ -22,6 +22,18 @@ const addNumberGuess = async (req: Request, res: Response) => {
   res.status(200).json(number);
 };
 
+const addCorrectGuess = async (req: Request, res: Response) => {
+  const { numberId, userId } = req.body;
+  const number = await NumberModel.findById(numberId);
+  if (!number) return res.status(404).json({ message: "Number not found" });
+  number.correct_user_guesses++;
+  if (userId) {
+    number.correct_users.push(userId);
+  }
+  await number.save();
+  res.status(200).json(number);
+};
+
 const createNumber = async (req: Request, res: Response) => {
   try {
     const numberDocuments = difficulties.map((difficulty) => ({
@@ -82,4 +94,10 @@ const getCurrentNumbers = async (req: Request, res: Response) => {
   }
 };
 
-export { createNumber, addNumberGuess, getAllNumbers, getCurrentNumbers };
+export {
+  createNumber,
+  addNumberGuess,
+  addCorrectGuess,
+  getAllNumbers,
+  getCurrentNumbers,
+};
