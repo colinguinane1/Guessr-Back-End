@@ -5,7 +5,8 @@ import {
   createNumber,
   getAllNumbers,
   getCurrentNumbers,
-  addNumberGuess
+  addCorrectGuess,
+  addNumberGuess,
 } from "../controllers/NumberController";
 
 // Define your routes here
@@ -18,13 +19,15 @@ import {
 //   });
 // });
 
-router.post("/add-guess", addNumberGuess)
+router.post("/add-guess", addNumberGuess);
 
-router.post("/create", createNumber)
+router.post("/correct-guess", addCorrectGuess);
+
+router.post("/create", createNumber);
 
 router.get("/all", getAllNumbers);
 
 router.get("/current", getCurrentNumbers);
 
 // Export the router
-module.exports = router
+module.exports = router;
