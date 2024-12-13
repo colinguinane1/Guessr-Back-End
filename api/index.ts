@@ -10,13 +10,14 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 app.use(express.json());
 
-const allowedOrigins = [
-  "http://localhost:3000",
-  "http://localhost:3001",
-  "https://numgame.up.railway.app",
-  "https://num-game-front-end.vercel.app",
-  "https://num.c-g.dev",
-];
+const isProduction = process.env.NODE_ENV === "production";
+
+console.log("Production:", isProduction);
+
+// Set allowed origins based on environment
+const allowedOrigins = isProduction
+  ? [process.env.CORS_ORIGIN]
+  : ["*", "http://localhost:3000", "http://10.0.0.232:3000"];
 
 const corsOptions: CorsOptions = {
   origin: (
