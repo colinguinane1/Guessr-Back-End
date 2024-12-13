@@ -10,8 +10,8 @@ const numberSchema = new mongoose.Schema({
   attempts: Number,
   expires: Date,
   created: { type: Date, default: Date.now },
-  global_user_guesses: Number,
-  correct_user_guesses: Number,
+  global_user_guesses: { type: Number, default: 0 },
+  correct_user_guesses: { type: Number, default: 0 },
   correct_users: [User.schema],
 });
 

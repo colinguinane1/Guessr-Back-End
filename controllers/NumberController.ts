@@ -23,12 +23,15 @@ const addNumberGuess = async (req: Request, res: Response) => {
 };
 
 const addCorrectGuess = async (req: Request, res: Response) => {
-  const { numberId, userId } = req.body;
+  const { numberId, user } = req.body;
   const number = await NumberModel.findById(numberId);
   if (!number) return res.status(404).json({ message: "Number not found" });
   number.correct_user_guesses++;
-  if (userId) {
-    number.correct_users.push(userId);
+  if (user) {
+    if (!number.correct_users.includes(user)) {
+      return res.status(400).json({ message: "User already guessed" });
+    }
+    number.correct_users.push(user);
   }
   await number.save();
   res.status(200).json(number);
