@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-import User from "./UserModel";
+const userSchema = require("./UserModel");
 
 const numberSchema = new mongoose.Schema({
   difficulty: String,
@@ -12,7 +12,7 @@ const numberSchema = new mongoose.Schema({
   created: { type: Date, default: Date.now },
   global_user_guesses: { type: Number, default: 0 },
   correct_user_guesses: { type: Number, default: 0 },
-  correct_users: [User.schema],
+  correct_users: [userSchema],
 });
 
 const NumberModel = mongoose.model("Number", numberSchema);

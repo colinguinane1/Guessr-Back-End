@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import cron from "node-cron";
+import User from "../models/UserModel";
 const NumberModel = require(`../models/NumberModel`);
 
 const difficulties = [
@@ -24,14 +25,23 @@ const addNumberGuess = async (req: Request, res: Response) => {
 
 const addCorrectGuess = async (req: Request, res: Response) => {
   const { numberId, user } = req.body;
+  if (!numberId || !user) {
+    return res.status(400).json({ message: "Missing numberId or user." });
+  }
   const number = await NumberModel.findById(numberId);
   if (!number) return res.status(404).json({ message: "Number not found" });
   number.correct_user_guesses++;
   if (user) {
-    if (!number.correct_users.includes(user)) {
+    if (number.correct_users.includes(user)) {
       return res.status(400).json({ message: "User already guessed" });
     }
-    number.correct_users.push(user);
+    const userProfile = await User.findById(user._id);
+    if (userProfile) {
+      userProfile.xp += 100;
+      await userProfile.save();
+      console.log("Added 100 XP to user: " + userProfile.username);
+    }
+    number.correct_users.push(user._id);
   }
   await number.save();
   res.status(200).json(number);
@@ -64,6 +74,11 @@ const createNumber = async (req: Request, res: Response) => {
 };
 
 cron.schedule("0 0 * * *", async () => {
+  const production = process.env.NODE_ENV === "production";
+  if (!production) {
+    console.log("Not running scheduled task in development mode.");
+    return;
+  }
   console.log("Running scheduled task to create numbers...");
   try {
     const req = {} as Request;
