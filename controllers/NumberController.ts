@@ -4,10 +4,41 @@ import User from "../models/UserModel";
 const NumberModel = require(`../models/NumberModel`);
 
 const difficulties = [
-  { name: "easy", max: 10, attempts: 4, color: "green" },
-  { name: "medium", max: 200, attempts: 8, color: "yellow" },
-  { name: "hard", max: 1500, attempts: 15, color: "orange" },
-  { name: "impossible", max: 10000, attempts: 25, color: "red" },
+  {
+    name: "easy",
+    max: 10,
+    maxExperience: 100,
+    attempts: 4,
+    color: "green",
+  },
+  {
+    name: "medium",
+    max: 200,
+    maxExperience: 150,
+    attempts: 8,
+    color: "yellow",
+  },
+  {
+    name: "hard",
+    max: 1500,
+    maxExperience: 175,
+    attempts: 12,
+    color: "orange",
+  },
+  {
+    name: "very hard",
+    max: 10000,
+    maxExperience: 250,
+    attempts: 20,
+    color: "red",
+  },
+  {
+    name: "impossible",
+    max: 1000000,
+    maxExperience: 550,
+    attempts: 30,
+    color: "white",
+  },
 ];
 
 const randomNumber = (max: number) => {
@@ -24,9 +55,9 @@ const addNumberGuess = async (req: Request, res: Response) => {
 };
 
 const addCorrectGuess = async (req: Request, res: Response) => {
-  const { numberId, user } = req.body;
-  if (!numberId || !user) {
-    return res.status(400).json({ message: "Missing numberId or user." });
+  const { numberId, user, xp } = req.body;
+  if (!numberId || !user || !xp) {
+    return res.status(400).json({ message: "Missing numberId or user or XP." });
   }
   const number = await NumberModel.findById(numberId);
   if (!number) return res.status(404).json({ message: "Number not found" });
@@ -37,9 +68,10 @@ const addCorrectGuess = async (req: Request, res: Response) => {
     }
     const userProfile = await User.findById(user._id);
     if (userProfile) {
-      userProfile.xp += 100;
+      userProfile.xp += xp;
+      userProfile.guessed_numbers.push(number);
       await userProfile.save();
-      console.log("Added 100 XP to user: " + userProfile.username);
+      console.log(userProfile.username, "added", xp, "XP");
     }
     number.correct_users.push(user._id);
   }
@@ -54,6 +86,7 @@ const createNumber = async (req: Request, res: Response) => {
       max: difficulty.max,
       value: randomNumber(difficulty.max),
       color: difficulty.color,
+      maxExperience: difficulty.maxExperience,
       attempts: difficulty.attempts,
       expires: Date.now() + 24 * 60 * 60 * 1000, // Adds 24 hours to the current date
       global_user_guesses: 0,
@@ -105,7 +138,7 @@ const getAllNumbers = async (req: Request, res: Response) => {
 
 const getCurrentNumbers = async (req: Request, res: Response) => {
   try {
-    const numbers = await NumberModel.find({}).sort({ expires: -1 }).limit(4);
+    const numbers = await NumberModel.find({}).sort({ expires: -1 }).limit(5);
     res.status(200).json(numbers);
   } catch (error) {
     res.status(400).json({ ok: "no", error: (error as Error).message });
