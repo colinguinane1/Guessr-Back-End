@@ -7,6 +7,7 @@ const numberSchema = new mongoose.Schema({
   max: Number,
   value: Number,
   color: String,
+  maxExperience: Number,
   attempts: Number,
   expires: Date,
   created: { type: Date, default: Date.now },
