@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, response, Response } from "express";
 import User from "../models/UserModel";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -35,6 +35,31 @@ const getProfile = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+const addProfileView = async (req: Request, res: Response): Promise<void> => {
+  const user = req.body.user;
+  if(!user) {
+    res.status(400).json({ message: "No user logged in. Not adding profile view." });
+    return;
+  }
+  try { 
+    const profileId = req.params.id;
+    const profile = await User.findById(profileId);
+
+    if (!profile) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    profile.profile_views++;
+    await profile.save();
+
+    res.status(200).json(profile);  
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
 
 const getUser = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -103,7 +128,7 @@ const loginUser = async (req: Request, res: Response) => {
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
       expiresIn: "24h",
     });
-    console.log("Returning token: " + token);
+    console.log("Returning token.");
     res.status(201).json({ token, user });
     return;
   } catch (error) {
@@ -111,4 +136,4 @@ const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-export { getUser, registerUser, getProfile, getAllUsers, loginUser };
+export { getUser, registerUser, addProfileView, getProfile, getAllUsers, loginUser };
