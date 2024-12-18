@@ -76,7 +76,7 @@ const addCorrectGuess = async (req: Request, res: Response) => {
     number.correct_users.push(user._id);
   }
   await number.save();
-  res.status(200).json(number);
+  res.status(200).json({ number, xp });
 };
 
 const createNumber = async (req: Request, res: Response) => {
