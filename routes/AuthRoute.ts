@@ -6,6 +6,7 @@ import {
   getProfile,
   addProfileView,
   getAllUsers,
+  updateUser,
 } from "../controllers/AuthController";
 import { authenticateToken } from "../middleware/middleware";
 
@@ -15,6 +16,7 @@ router.get("/user", authenticateToken, getUser);
 router.get("/all-users", getAllUsers);
 router.get("/profile/:id", getProfile);
 router.post("/profile/:id" , addProfileView);
+router.post("/account", updateUser);
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 

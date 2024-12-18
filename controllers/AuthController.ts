@@ -61,6 +61,29 @@ const addProfileView = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
+const updateUser = async (req: Request, res: Response): Promise<void> => {
+  const { userId, username } = req.body;
+  try {
+    const user = await User.findById(userId)
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+    const usernameExists = await User.findOne({ username });
+    if (usernameExists) {
+      res.status(400).json({ message: "Username already exists" });
+      return;
+    }
+    user.username = username;
+    await user.save();
+    res.status(200).json({user, message: "User updated successfully"});
+
+} catch (error) {
+  console.error("Error fetching user data:", error);
+  res.status(500).json({ message: "Internal Server Error" });
+}
+}
+
 const getUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user!.userId;
@@ -136,4 +159,4 @@ const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-export { getUser, registerUser, addProfileView, getProfile, getAllUsers, loginUser };
+export { getUser, registerUser, updateUser, addProfileView, getProfile, getAllUsers, loginUser };
