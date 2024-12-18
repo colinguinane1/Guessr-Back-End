@@ -60,8 +60,9 @@ const addCorrectGuess = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Missing numberId or user or XP." });
   }
   const number = await NumberModel.findById(numberId);
-  if (!number) return res.status(404).json({ message: "Number not found" });
-  number.correct_user_guesses++;
+  if (!number)  {number.correct_user_guesses++;
+  return res.status(404).json({ message: "Number not found" });
+  }
   if (user) {
     if (number.correct_users.includes(user)) {
       return res.status(400).json({ message: "User already guessed" });
