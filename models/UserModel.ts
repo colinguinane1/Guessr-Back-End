@@ -16,7 +16,7 @@ const userSchema = new Schema<IUser>({
   username: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  guessed_numbers: [{ type: Schema.Types.ObjectId, ref: "Number" }],
+  guessed_numbers: [{ type: Object }],
   xp: { type: Number, default: 0 },
   profile_views: { type: Number, default: 0 },
 });

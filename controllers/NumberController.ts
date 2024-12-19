@@ -56,26 +56,25 @@ const addNumberGuess = async (req: Request, res: Response) => {
 
 const addCorrectGuess = async (req: Request, res: Response) => {
   const { numberId, user, xp } = req.body;
-  if (!numberId || !user || !xp) {
-    return res.status(400).json({ message: "Missing numberId or user or XP." });
+  if (!numberId || !user || !xp || !user._id) {
+    return res.status(400).json({ message: "Missing numberId, user, or XP." });
   }
   const number = await NumberModel.findById(numberId);
-  if (!number)  {number.correct_user_guesses++;
-  return res.status(404).json({ message: "Number not found" });
+  if (!number) {
+    return res.status(404).json({ message: "Number not found" });
   }
-  if (user) {
-    if (number.correct_users.includes(user)) {
-      return res.status(400).json({ message: "User already guessed" });
-    }
-    const userProfile = await User.findById(user._id);
-    if (userProfile) {
-      userProfile.xp += xp;
-      userProfile.guessed_numbers.push(number);
-      await userProfile.save();
-      console.log(userProfile.username, "added", xp, "XP");
-    }
-    number.correct_users.push(user._id);
+  number.correct_user_guesses++;
+  if (number.correct_users.includes(user._id)) {
+    return res.status(400).json({ message: "User already guessed" });
   }
+  const userProfile = await User.findById(user._id);
+  if (userProfile) {
+    userProfile.xp += xp;
+    userProfile.guessed_numbers.push(number.toObject());
+    await userProfile.save();
+    console.log(userProfile.username, "added", xp, "XP");
+  }
+  number.correct_users.push(user._id);
   await number.save();
   res.status(200).json({ number, xp });
 };
