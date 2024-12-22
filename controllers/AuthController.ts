@@ -128,7 +128,7 @@ const registerUser = async (req: Request, res: Response) => {
 
     const username = name + Math.floor(Math.random() * 9999) + 1;
 
-    const user = new User({ email, password, username });
+    const user = new User({ email, password, username, current_number_data: new Map(),  });
     await user.save();
 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, {

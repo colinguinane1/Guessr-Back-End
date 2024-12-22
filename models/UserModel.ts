@@ -2,10 +2,16 @@ import mongoose, { Document, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 const NumberModel = require("./NumberModel");
 
+interface IModeData {
+  attempts: number;
+  win: boolean;
+}
+
 interface IUser extends Document {
   username: string;
   email: string;
-  guessed_numbers: (typeof NumberModel)[];
+  current_number_data: Map<string, IModeData>; // Use Map explicitly
+  guessed_numbers: typeof NumberModel[];
   xp: number;
   profile_views: number;
   password: string;
@@ -16,6 +22,14 @@ const userSchema = new Schema<IUser>({
   username: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  current_number_data: {
+    type: Map,
+    of: new Schema({
+      attempts: { type: Number, required: true, default: 0 },
+      win: { type: Boolean, required: true, default: false },
+    }),
+    default: {},
+  },
   guessed_numbers: [{ type: Object }],
   xp: { type: Number, default: 0 },
   profile_views: { type: Number, default: 0 },

@@ -45,19 +45,47 @@ const randomNumber = (max: number) => {
   return Math.floor(Math.random() * max) + 1;
 };
 
+const getUserCurrentNumberData = async (req: Request, res: Response) => {
+  const { userId } = req.body;
+  const user = await User.findById(userId);
+  if (!user) return res.status(404).json({ message: "User not found" });
+  const currentNumberData = user.current_number_data;
+  res.status(200).json(currentNumberData);
+}
+
 const addNumberGuess = async (req: Request, res: Response) => {
-  const { numberId } = req.body;
+  const { numberId, userId, mode } = req.body;
   const number = await NumberModel.findById(numberId);
   if (!number) return res.status(404).json({ message: "Number not found" });
   number.global_user_guesses++;
+  if (userId) {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    const currentData = user.current_number_data as Map<string, { attempts: number, win: boolean }>;
+
+    // Initialize the mode if not present
+    if (!currentData.has(mode)) {
+      currentData.set(mode, { attempts: 0, win: false });
+    }
+    
+    // Update the mode data
+    const modeData = currentData.get(mode);
+    if (modeData) {
+      modeData.attempts++;
+      currentData.set(mode, modeData); // Update the Map
+    }
+    await user.save();
+
+
+  }
   await number.save();
-  res.status(200).json(number);
+  res.status(200).json({ number  });
 };
 
 const addCorrectGuess = async (req: Request, res: Response) => {
-  const { numberId, user, xp } = req.body;
-  if (!numberId || !user || !xp || !user._id) {
-    return res.status(400).json({ message: "Missing numberId, user, or XP." });
+  const { numberId, user, xp, mode } = req.body;
+  if (!numberId || !user || !xp || !user._id || !mode) {
+    return res.status(400).json({ message: "Missing numberId, user, or XP or mode." });
   }
   const number = await NumberModel.findById(numberId);
   if (!number) {
@@ -71,6 +99,14 @@ const addCorrectGuess = async (req: Request, res: Response) => {
   if (userProfile) {
     userProfile.xp += xp;
     userProfile.guessed_numbers.push(number.toObject());
+    const currentData = userProfile.current_number_data as Map<string, { attempts: number, win: boolean }>;
+
+    const modeData = currentData.get(mode);
+    if (modeData) {
+      modeData.win = true;
+      currentData.set(mode, modeData);
+    }
+    console.log("modeData", modeData);
     await userProfile.save();
     console.log(userProfile.username, "added", xp, "XP");
   }
@@ -94,6 +130,9 @@ const createNumber = async (req: Request, res: Response) => {
 
     // Use insertMany to reduce the number of individual operations
     const createdNumbers = await NumberModel.insertMany(numberDocuments);
+
+    // Remove all users' current_number_data
+    await User.updateMany({}, { $unset: { current_number_data: "" } });
 
     res.status(200).json(createdNumbers);
     return;
@@ -151,4 +190,5 @@ export {
   addCorrectGuess,
   getAllNumbers,
   getCurrentNumbers,
+  getUserCurrentNumberData,
 };
