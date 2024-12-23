@@ -5,6 +5,7 @@ const NumberModel = require("./NumberModel");
 interface IModeData {
   attempts: number;
   win: boolean;
+  guesses: number[];
 }
 
 interface IUser extends Document {
@@ -27,6 +28,7 @@ const userSchema = new Schema<IUser>({
     of: new Schema({
       attempts: { type: Number, required: true, default: 0 },
       win: { type: Boolean, required: true, default: false },
+      guesses: [{ type: Number, default: [] }],
     }),
     default: {},
   },

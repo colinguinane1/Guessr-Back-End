@@ -59,7 +59,7 @@ const getUserCurrentNumberData = async (req: Request, res: Response) => {
 }
 
 const addNumberGuess = async (req: Request, res: Response) => {
-  const { numberId, userId, mode } = req.body;
+  const { numberId, userId, mode, guess } = req.body;
   const number = await NumberModel.findById(numberId);
   if (!number) return res.status(404).json({ message: "Number not found" });
   number.global_user_guesses++;
@@ -68,19 +68,20 @@ const addNumberGuess = async (req: Request, res: Response) => {
     if (!user) return res.status(404).json({ message: "User not found" });
     const currentData = user.current_number_data as Map<
       string,
-      { attempts: number; win: boolean }
+      { attempts: number; win: boolean, guesses: number[] }
     >;
 
 
     // Initialize the mode if not present
     if (!currentData.has(mode)) {
-      currentData.set(mode, { attempts: 0, win: false });
+      currentData.set(mode, { attempts: 0, win: false, guesses: [] });
     }
 
     // Update the mode data
     const modeData = currentData.get(mode);
     if (modeData) {
       modeData.attempts++;
+      modeData.guesses.push(guess);
       currentData.set(mode, modeData); // Update the Map
     }
     await user.save();
