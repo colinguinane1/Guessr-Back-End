@@ -21,8 +21,8 @@ const getAllUsers = async (req: Request, res: Response): Promise<void> => {
 
 const getProfile = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = req.params.id;
-    const user = await User.findById(userId).select("-password");
+    const username = req.params.username;
+    const user = await User.findOne({ username }).select("-password");
 
     if (!user) {
       res.status(404).json({ message: "User not found" });
@@ -45,8 +45,8 @@ const addProfileView = async (req: Request, res: Response): Promise<void> => {
     return;
   }
   try {
-    const profileId = req.params.id;
-    const profile = await User.findById(profileId);
+    const username = req.params.username;
+    const profile = await User.findOne({ username }).select("-password");
 
     if (!profile) {
       res.status(404).json({ message: "User not found" });
@@ -128,7 +128,14 @@ const registerUser = async (req: Request, res: Response) => {
 
     const username = name + Math.floor(Math.random() * 9999) + 1;
 
-    const user = new User({ email, password, username, current_number_data: new Map(),  });
+
+    const user = new User({
+      email,
+      password,
+      username,
+      current_number_data: new Map(),
+    });
+
     await user.save();
 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
@@ -173,9 +180,9 @@ const loginUser = async (req: Request, res: Response) => {
 export {
   getUser,
   registerUser,
-  updateUser,
-  addProfileView,
   getProfile,
+  addProfileView,
+  updateUser,
   getAllUsers,
   loginUser,
 };
