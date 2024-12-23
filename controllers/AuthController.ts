@@ -36,6 +36,65 @@ const getProfile = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const addProfileView = async (req: Request, res: Response): Promise<void> => {
+  const user = req.body.user;
+  if (!user) {
+    res
+      .status(400)
+      .json({ message: "No user logged in. Not adding profile view." });
+    return;
+  }
+  try {
+    const profileId = req.params.id;
+    const profile = await User.findById(profileId);
+
+    if (!profile) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    profile.profile_views++;
+    await profile.save();
+
+    res.status(200).json(profile);
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const updateUser = async (req: Request, res: Response): Promise<void> => {
+  const { userId, username } = req.body;
+  try {
+    if (!userId || !username) {
+      res.status(400).json({ message: "Missing Data" });
+      return;
+    }
+    if (username.length < 4) {
+      res
+        .status(400)
+        .json({ message: "Username must be at least 4 characters long" });
+      return;
+    }
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+    const usernameExists = await User.findOne({ username });
+    if (usernameExists) {
+      res.status(400).json({ message: "Username already exists" });
+      return;
+    }
+    user.username = username;
+    await user.save();
+    res.status(200).json({ user, message: "User updated successfully" });
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    res.status(500).json({ message: "Error:", error });
+  }
+};
+
 const getUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user!.userId;
@@ -116,4 +175,12 @@ const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-export { getUser, registerUser, getProfile, getAllUsers, loginUser };
+export {
+  getUser,
+  registerUser,
+  getProfile,
+  addProfileView,
+  updateUser,
+  getAllUsers,
+  loginUser,
+};
