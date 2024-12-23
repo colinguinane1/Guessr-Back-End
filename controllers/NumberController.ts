@@ -50,6 +50,14 @@ const randomNumber = (max: number) => {
   return Math.floor(Math.random() * max) + 1;
 };
 
+const getUserCurrentNumberData = async (req: Request, res: Response) => {
+  const { userId } = req.body;
+  const user = await User.findById(userId);
+  if (!user) return res.status(404).json({ message: "User not found" });
+  const currentNumberData = user.current_number_data;
+  res.status(200).json(currentNumberData);
+}
+
 const addNumberGuess = async (req: Request, res: Response) => {
   const { numberId, userId, mode } = req.body;
   const number = await NumberModel.findById(numberId);
@@ -62,6 +70,7 @@ const addNumberGuess = async (req: Request, res: Response) => {
       string,
       { attempts: number; win: boolean }
     >;
+
 
     // Initialize the mode if not present
     if (!currentData.has(mode)) {
@@ -78,11 +87,11 @@ const addNumberGuess = async (req: Request, res: Response) => {
   }
   await number.save();
   res.status(200).json({ number });
+
 };
 
 const addCorrectGuess = async (req: Request, res: Response) => {
   const { numberId, user, xp, mode } = req.body;
-
   if (!numberId || !user || !mode) {
     return res
       .status(400)
@@ -93,6 +102,7 @@ const addCorrectGuess = async (req: Request, res: Response) => {
   if (!number) {
     return res.status(404).json({ message: "Number not found" });
   }
+
 
   // check if the user has already guessed
   if (number.correct_users.includes(user._id)) {
@@ -155,6 +165,9 @@ const createNumber = async (req: Request, res: Response) => {
     // Use insertMany to reduce the number of individual operations
     const createdNumbers = await NumberModel.insertMany(numberDocuments);
 
+    // Remove all users' current_number_data
+    await User.updateMany({}, { $unset: { current_number_data: "" } });
+
     res.status(200).json(createdNumbers);
     return;
   } catch (error) {
@@ -211,4 +224,5 @@ export {
   addCorrectGuess,
   getAllNumbers,
   getCurrentNumbers,
+  getUserCurrentNumberData,
 };

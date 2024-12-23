@@ -11,7 +11,7 @@ interface IUser extends Document {
   username: string;
   email: string;
   current_number_data: Map<string, IModeData>; // Use Map explicitly
-  guessed_numbers: (typeof NumberModel)[];
+  guessed_numbers: typeof NumberModel[];
   xp: number;
   profile_views: number;
   password: string;
