@@ -21,8 +21,8 @@ const getAllUsers = async (req: Request, res: Response): Promise<void> => {
 
 const getProfile = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = req.params.id;
-    const user = await User.findById(userId).select("-password");
+    const username = req.params.username;
+    const user = await User.findOne({ username }).select("-password");
 
     if (!user) {
       res.status(404).json({ message: "User not found" });
@@ -69,7 +69,12 @@ const registerUser = async (req: Request, res: Response) => {
 
     const username = name + Math.floor(Math.random() * 9999) + 1;
 
-    const user = new User({ email, password, username });
+    const user = new User({
+      email,
+      password,
+      username,
+      current_number_data: new Map(),
+    });
     await user.save();
 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, {

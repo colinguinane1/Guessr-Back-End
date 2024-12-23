@@ -7,6 +7,7 @@ const difficulties = [
   {
     name: "easy",
     max: 10,
+    duration: 2 * 60 * 60 * 1000, // 2 hours
     maxExperience: 100,
     attempts: 4,
     color: "green",
@@ -14,13 +15,15 @@ const difficulties = [
   {
     name: "medium",
     max: 200,
+    duration: 2 * 60 * 60 * 1000,
     maxExperience: 150,
     attempts: 8,
     color: "yellow",
   },
   {
     name: "hard",
-    max: 1500,
+    max: 2500,
+    duration: 6 * 60 * 60 * 1000, // 6 hours
     maxExperience: 175,
     attempts: 12,
     color: "orange",
@@ -28,6 +31,7 @@ const difficulties = [
   {
     name: "very hard",
     max: 10000,
+    duration: 12 * 60 * 60 * 1000, // 12 hours
     maxExperience: 250,
     attempts: 20,
     color: "red",
@@ -35,6 +39,7 @@ const difficulties = [
   {
     name: "impossible",
     max: 1000000,
+    duration: 24 * 60 * 60 * 1000, // 24 hours
     maxExperience: 550,
     attempts: 30,
     color: "white",
@@ -46,37 +51,92 @@ const randomNumber = (max: number) => {
 };
 
 const addNumberGuess = async (req: Request, res: Response) => {
-  const { numberId } = req.body;
+  const { numberId, userId, mode } = req.body;
   const number = await NumberModel.findById(numberId);
   if (!number) return res.status(404).json({ message: "Number not found" });
   number.global_user_guesses++;
+  if (userId) {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    const currentData = user.current_number_data as Map<
+      string,
+      { attempts: number; win: boolean }
+    >;
+
+    // Initialize the mode if not present
+    if (!currentData.has(mode)) {
+      currentData.set(mode, { attempts: 0, win: false });
+    }
+
+    // Update the mode data
+    const modeData = currentData.get(mode);
+    if (modeData) {
+      modeData.attempts++;
+      currentData.set(mode, modeData); // Update the Map
+    }
+    await user.save();
+  }
   await number.save();
-  res.status(200).json(number);
+  res.status(200).json({ number });
 };
 
 const addCorrectGuess = async (req: Request, res: Response) => {
-  const { numberId, user, xp } = req.body;
-  if (!numberId || !user || !xp) {
-    return res.status(400).json({ message: "Missing numberId or user or XP." });
+  const { numberId, user, xp, mode } = req.body;
+
+  if (!numberId || !user || !mode) {
+    return res
+      .status(400)
+      .json({ message: "Missing numberId, user, or mode." });
   }
+
   const number = await NumberModel.findById(numberId);
-  if (!number) return res.status(404).json({ message: "Number not found" });
-  number.correct_user_guesses++;
-  if (user) {
-    if (number.correct_users.includes(user)) {
-      return res.status(400).json({ message: "User already guessed" });
-    }
-    const userProfile = await User.findById(user._id);
-    if (userProfile) {
-      userProfile.xp += xp;
-      userProfile.guessed_numbers.push(number);
-      await userProfile.save();
-      console.log(userProfile.username, "added", xp, "XP");
-    }
-    number.correct_users.push(user._id);
+  if (!number) {
+    return res.status(404).json({ message: "Number not found" });
   }
+
+  // check if the user has already guessed
+  if (number.correct_users.includes(user._id)) {
+    return res.status(400).json({ message: "User already guessed" });
+  }
+
+  number.correct_user_guesses++;
+
+  const userProfile = await User.findById(user._id);
+  if (!userProfile) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  userProfile.guessed_numbers.push(number.toObject());
+  const currentData = userProfile.current_number_data as Map<
+    string,
+    { attempts: number; win: boolean }
+  >;
+  const modeData = currentData.get(mode);
+
+  const calculateTotalExperience = () => {
+    if (!modeData) return number.maxExperience;
+
+    // deduct up to 30% of maxExperience based on attempts
+    const maxDeduction = number.maxExperience * 0.5;
+    const removedXp = Math.min(
+      modeData?.attempts * (number.maxExperience * 0.15),
+      maxDeduction
+    );
+    return Math.max(Math.ceil(number.maxExperience - removedXp), 0);
+  };
+
+  const calculatedXp = calculateTotalExperience();
+  userProfile.xp += calculatedXp;
+
+  if (modeData) {
+    modeData.win = true;
+    currentData.set(mode, modeData);
+  }
+
+  await userProfile.save();
+  number.correct_users.push(user._id);
   await number.save();
-  res.status(200).json(number);
+  res.status(200).json({ xp: calculatedXp });
 };
 
 const createNumber = async (req: Request, res: Response) => {
