@@ -68,7 +68,7 @@ const addNumberGuess = async (req: Request, res: Response) => {
     if (!user) return res.status(404).json({ message: "User not found" });
     const currentData = user.current_number_data as Map<
       string,
-      { attempts: number; win: boolean, guesses: number[] }
+      { attempts: number; win: boolean; guesses: number[] }
     >;
 
 
@@ -80,8 +80,8 @@ const addNumberGuess = async (req: Request, res: Response) => {
     // Update the mode data
     const modeData = currentData.get(mode);
     if (modeData) {
-      modeData.attempts++;
       modeData.guesses.push(guess);
+      modeData.attempts++;
       currentData.set(mode, modeData); // Update the Map
     }
     await user.save();
@@ -92,7 +92,7 @@ const addNumberGuess = async (req: Request, res: Response) => {
 };
 
 const addCorrectGuess = async (req: Request, res: Response) => {
-  const { numberId, user, xp, mode } = req.body;
+  const { numberId, user, mode, guess } = req.body;
   if (!numberId || !user || !mode) {
     return res
       .status(400)
@@ -120,7 +120,7 @@ const addCorrectGuess = async (req: Request, res: Response) => {
   userProfile.guessed_numbers.push(number.toObject());
   const currentData = userProfile.current_number_data as Map<
     string,
-    { attempts: number; win: boolean }
+    { attempts: number; win: boolean; guesses: number[] }
   >;
   const modeData = currentData.get(mode);
 
@@ -141,6 +141,7 @@ const addCorrectGuess = async (req: Request, res: Response) => {
 
   if (modeData) {
     modeData.win = true;
+    modeData.guesses.push(guess);
     currentData.set(mode, modeData);
   }
 
