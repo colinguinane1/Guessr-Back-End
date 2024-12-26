@@ -56,7 +56,7 @@ const getUserCurrentNumberData = async (req: Request, res: Response) => {
   if (!user) return res.status(404).json({ message: "User not found" });
   const currentNumberData = user.current_number_data;
   res.status(200).json(currentNumberData);
-}
+};
 
 const addNumberGuess = async (req: Request, res: Response) => {
   const { numberId, userId, mode, guess } = req.body;
@@ -70,7 +70,6 @@ const addNumberGuess = async (req: Request, res: Response) => {
       string,
       { attempts: number; win: boolean; guesses: number[] }
     >;
-
 
     // Initialize the mode if not present
     if (!currentData.has(mode)) {
@@ -88,7 +87,6 @@ const addNumberGuess = async (req: Request, res: Response) => {
   }
   await number.save();
   res.status(200).json({ number });
-
 };
 
 const addCorrectGuess = async (req: Request, res: Response) => {
@@ -103,7 +101,6 @@ const addCorrectGuess = async (req: Request, res: Response) => {
   if (!number) {
     return res.status(404).json({ message: "Number not found" });
   }
-
 
   // check if the user has already guessed
   if (number.correct_users.includes(user._id)) {
@@ -160,7 +157,7 @@ const createNumber = async (req: Request, res: Response) => {
       color: difficulty.color,
       maxExperience: difficulty.maxExperience,
       attempts: difficulty.attempts,
-      expires: Date.now() + 24 * 60 * 60 * 1000, // Adds 24 hours to the current date
+      expires: Date.now() + 12 * 60 * 60 * 1000, // Adds 24 hours to the current date
       global_user_guesses: 0,
     }));
 
@@ -181,7 +178,7 @@ const createNumber = async (req: Request, res: Response) => {
   }
 };
 
-cron.schedule("0 0 * * *", async () => {
+cron.schedule("0 */12 * * *", async () => {
   const production = process.env.NODE_ENV === "production";
   if (!production) {
     console.log("Not running scheduled task in development mode.");
