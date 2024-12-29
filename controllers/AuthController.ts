@@ -11,7 +11,7 @@ if (!JWT_SECRET) {
 
 const getAllUsers = async (req: Request, res: Response): Promise<void> => {
   try {
-    const users = await User.find().select("-password");
+    const users = await User.find().select("-password").sort({ xp: -1 });
     res.status(200).json(users);
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -127,7 +127,6 @@ const registerUser = async (req: Request, res: Response) => {
     const name = email.split("@")[0];
 
     const username = name + Math.floor(Math.random() * 9999) + 1;
-
 
     const user = new User({
       email,
