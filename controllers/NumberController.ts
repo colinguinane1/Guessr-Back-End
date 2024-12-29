@@ -42,7 +42,7 @@ const difficulties = [
     duration: 24 * 60 * 60 * 1000, // 24 hours
     maxExperience: 550,
     attempts: 30,
-    color: "white",
+    color: "purple",
   },
 ];
 
